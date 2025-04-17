@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
+        <TextView
+            android:id="@+id/Dash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Transactions"
+            android:textColor="@color/black"
+            android:textSize="23sp"
+            android:layout_marginRight="140dp"
+            />
+
+        <TextView
+            android:id="@+id/tvCurrentDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Current Date"
+            android:gravity="right"
+            android:textSize="16sp"
+            android:layout_margin="16dp"/>
+    </LinearLayout>
+    <RadioGroup
+        android:id="@+id/radioGroupType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <RadioButton
+            android:id="@+id/rbAll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="All"
+            android:button="@null"
+            android:background="@drawable/transaction_radio_button"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:gravity="center"
+            android:layout_marginEnd="4dp" />
+        <RadioButton
+            android:id="@+id/rbExpense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Expense"
+            android:button="@null"
+            android:background="@drawable/transaction_radio_button"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:gravity="center"
+            android:layout_marginEnd="4dp"/>
+        <RadioButton
+            android:id="@+id/rbIncome"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Income"
+            android:button="@null"
+            android:background="@drawable/transaction_radio_button"
+            android:padding="12dp"
+            android:textColor="@android:color/black"
+            android:gravity="center" />
+    </RadioGroup>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recentTransactionsRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        />
+
+
+</LinearLayout>

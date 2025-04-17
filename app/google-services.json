@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "666158977889",
+    "project_id": "wallyapp-e706d",
+    "storage_bucket": "wallyapp-e706d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:666158977889:android:1bfeab517b00dd4a756b20",
+        "android_client_info": {
+          "package_name": "com.example.wallyapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPj90q4rf-szNkhtoH4J9lZgcqf73Qn6Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
