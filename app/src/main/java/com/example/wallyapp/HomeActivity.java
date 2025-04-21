@@ -21,19 +21,16 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);  // Make sure this is your layout file name
+        setContentView(R.layout.activity_home);
 
-        // Initialize views
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fab = findViewById(R.id.fab);
-
-        // Make background transparent to allow FAB cradle effect
         bottomNavigationView.setBackground(null);
 
-        // Default fragment
+        // Shows home fragment by default (bch doub ma nodkhl nra l home)
         loadFragment(new HomeFragment());
 
-        // Bottom nav listener using the new method
+        // bch ky ncklicki fl nav thzny ll fragments
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -53,15 +50,15 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        // FAB click: open add transaction
+        // l + button bch nzyd transactions
         fab.setOnClickListener(v -> {
             Intent intent = new Intent(HomeActivity.this, AddTransactionActivity.class);
             startActivity(intent);
         });
     }
 
+    //tbadl ma bin lfragments
     private boolean loadFragment(Fragment fragment) {
-        // Check if the fragment is already the current one
         if (fragment != null) {
             getSupportFragmentManager()
                     .beginTransaction()

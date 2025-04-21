@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -20,10 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity {
-
     private EditText emailInput, passwordInput, confirmPasswordInput;
     private Button signUpButton;
-
+    private TextView LoginAccountbtn;
     private FirebaseAuth auth;
     private DatabaseReference dbRef;
 
@@ -36,11 +36,18 @@ public class SignUpActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.passwordInput);
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
         signUpButton = findViewById(R.id.signUpButton);
+        LoginAccountbtn = findViewById(R.id.createAccount);
 
+        // Firebase of the user that signed up
         auth = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference("users");
 
         signUpButton.setOnClickListener(view -> registerUser());
+
+        LoginAccountbtn.setOnClickListener(v -> {
+            Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void registerUser() {

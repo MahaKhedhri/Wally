@@ -40,6 +40,7 @@ public class AddTransactionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_transaction);
 
+        // Initialize views
         radioGroupType = findViewById(R.id.radioGroupType);
         rbExpense = findViewById(R.id.rbExpense);
         rbIncome = findViewById(R.id.rbIncome);
@@ -55,23 +56,19 @@ public class AddTransactionActivity extends AppCompatActivity {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         transactionsRef = firebaseDatabase.getReference("users").child(userId).child("transactions");
 
-        rbExpense.setChecked(true);
+        rbExpense.setChecked(true);  // Default to Expense type
 
         addCategoryButtons();
 
         etDate.setOnClickListener(v -> openDatePicker());
 
         checkButton.setOnClickListener(v -> addTransaction());
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        backButton.setOnClickListener(v -> finish());
 
         radioGroupType.setOnCheckedChangeListener((group, checkedId) -> addCategoryButtons());
     }
 
+    // Load categories based on Expense or Income selection
     private void addCategoryButtons() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference categoriesRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("categories");
@@ -101,11 +98,13 @@ public class AddTransactionActivity extends AppCompatActivity {
         });
     }
 
+    // Store the selected category
     private void selectCategory(String categoryId) {
         selectedCategoryId = categoryId;
         Toast.makeText(this, "Category selected", Toast.LENGTH_SHORT).show();
     }
 
+    // Show date picker for selecting the transaction date
     private void openDatePicker() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -123,6 +122,7 @@ public class AddTransactionActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    // Add transaction after checking the budget
     private void addTransaction() {
         String amountStr = etAmount.getText().toString().trim();
         String title = etTitle.getText().toString().trim();
@@ -142,17 +142,53 @@ public class AddTransactionActivity extends AppCompatActivity {
             return;
         }
 
-        String type = rbExpense.isChecked() ? "Expense" : "Income";
+        // Check the budget before adding the transaction
+        checkCategoryBudget(selectedCategoryId, amount, () -> {
+            String type = rbExpense.isChecked() ? "Expense" : "Income";
+            addTransactionToDatabase(amountStr, title, date, note, type);
+        });
+    }
+
+    // Check if the transaction amount exceeds the category budget
+    private void checkCategoryBudget(String categoryId, double amount, Runnable onSuccess) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference categoryBudgetRef = firebaseDatabase.getReference("users")
+                .child(userId).child("budgets").child("categoryBudgets").child(categoryId);
+
+        categoryBudgetRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Double budget = task.getResult().getValue(Double.class);
+                if (budget != null) {
+                    double remainingBudget = budget - amount;
+                    if (remainingBudget >= 0) {
+                        // Proceed with adding the transaction
+                        onSuccess.run();
+                    } else {
+                        Toast.makeText(AddTransactionActivity.this, "Insufficient budget for this category!", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(AddTransactionActivity.this, "No budget set for this category", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(AddTransactionActivity.this, "Failed to check category budget", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // Add transaction to the database
+    private void addTransactionToDatabase(String amountStr, String title, String date, String note, String type) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference transactionsRef = firebaseDatabase.getReference("users").child(userId).child("transactions");
+
         String transactionId = transactionsRef.push().getKey();
-
-        Transaction transaction = new Transaction(transactionId, title, amount, selectedCategoryId, date, note, type);
-
         if (transactionId != null) {
+            Transaction transaction = new Transaction(transactionId, title, Double.parseDouble(amountStr), selectedCategoryId, date, note, type);
+
             transactionsRef.child(transactionId).setValue(transaction)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show();
-                            finish();
+                            finish(); // Close the activity
                         } else {
                             Toast.makeText(this, "Failed to add transaction", Toast.LENGTH_SHORT).show();
                         }

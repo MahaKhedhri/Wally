@@ -6,7 +6,6 @@
     android:padding="24dp"
     android:background="@color/white">
 
-    <!-- Container for Centered Form -->
     <LinearLayout
         android:id="@+id/formContainer"
         android:layout_width="0dp"
@@ -18,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- App Title -->
+
         <ImageView
             android:id="@+id/logoImage"
             android:layout_width="303dp"
@@ -38,8 +37,6 @@
             android:textSize="23sp"
             android:layout_marginBottom="10dp"
             android:gravity="center"/>
-
-        <!-- Email Input -->
         <EditText
             android:id="@+id/emailInput"
             android:layout_width="match_parent"
@@ -48,8 +45,6 @@
             android:inputType="textEmailAddress"
             android:padding="12dp"
             android:background="@android:drawable/editbox_background"/>
-
-        <!-- Password Input -->
         <EditText
             android:id="@+id/passwordInput"
             android:layout_width="match_parent"
@@ -59,8 +54,6 @@
             android:padding="12dp"
             android:background="@android:drawable/editbox_background"
             android:layout_marginTop="12dp"/>
-
-        <!-- Login Button -->
         <Button
             android:id="@+id/loginButton"
             android:layout_width="match_parent"
@@ -69,8 +62,6 @@
             android:backgroundTint="@color/blue"
             android:text="Login"
             android:textColor="@color/white" />
-
-        <!-- Forgot Password -->
         <TextView
             android:id="@+id/forgotPassword"
             android:layout_width="wrap_content"
@@ -82,7 +73,6 @@
             android:layout_marginTop="12dp"/>
     </LinearLayout>
 
-    <!-- "Don't have an account?" at the bottom -->
     <TextView
         android:id="@+id/noAccountText"
         android:layout_width="wrap_content"
@@ -93,8 +83,6 @@
         app:layout_constraintBottom_toTopOf="@id/createAccount"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- "Create an account" at the bottom -->
     <TextView
         android:id="@+id/createAccount"
         android:layout_width="wrap_content"

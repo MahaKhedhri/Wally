@@ -35,44 +35,38 @@ public class HomeFragment extends Fragment {
     private DatabaseReference dbRef;
     private ArrayList<Transaction> transactionList;
     private TransactionAdapter transactionAdapter;
-    private Map<String, String> categoryMap = new HashMap<>();
+    private Map<String, String> categoryMap = new HashMap<>(); // Store category ID and name (l hashmap kyma dictionnaire fyh id w valeur)
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Initialize Views
-        tvCurrentDate = view.findViewById(R.id.tvCurrentDate);
         balance = view.findViewById(R.id.balance);
         income = view.findViewById(R.id.income);
         expense = view.findViewById(R.id.expense);
         recentTransactionsRecycler = view.findViewById(R.id.recentTransactionsRecycler);
 
-        // Firebase setup
+        // Firebase of the user that signed in (bl id mteeou)
         auth = FirebaseAuth.getInstance();
         dbRef = FirebaseDatabase.getInstance().getReference("users")
                 .child(auth.getCurrentUser().getUid());
 
-        // Set current date
-        String currentDate = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(new Date());
-        tvCurrentDate.setText(currentDate);
 
         // Setup RecyclerView
-        transactionList = new ArrayList<>();
+        transactionList = new ArrayList<>(); //ly feha les 3 derniers transactions
         transactionAdapter = new TransactionAdapter(transactionList);
         recentTransactionsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
-        recentTransactionsRecycler.setAdapter(transactionAdapter);
+        recentTransactionsRecycler.setAdapter(transactionAdapter); //conectina liste bl recucler view a l'aide d'adaptateur
 
-        // Load categories first, then transactions
+        // Load categories first (naqraw l categories ml firebase id,valeur bch baad nwary l transaction ,kahter f transaction andy cle etranger ll categoiries)
         loadCategories();
 
         return view;
     }
 
     private void loadCategories() {
-        dbRef.child("categories").addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRef.child("categories").addListenerForSingleValueEvent(new ValueEventListener() {//dkhalna l categories
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 categoryMap.clear();
@@ -83,18 +77,18 @@ public class HomeFragment extends Fragment {
                         categoryMap.put(id, name);
                     }
                 }
-                loadTransactionData(); // Load transactions after categories are ready
+                loadTransactionData(); // Load transactions ky arfna l categories
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Handle error
+                // ken fama erreur
             }
         });
     }
 
     private void loadTransactionData() {
-        dbRef.child("transactions").addValueEventListener(new ValueEventListener() {
+        dbRef.child("transactions").addValueEventListener(new ValueEventListener() {//dkhalna l transactions
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 double totalIncome = 0;
@@ -107,12 +101,12 @@ public class HomeFragment extends Fragment {
                     Transaction transaction = data.getValue(Transaction.class);
                     if (transaction != null) {
 
-                        // Replace category ID with name for display
+                        // nbdlou id bl nom mtaa l category
                         if (transaction.getCategory() != null && categoryMap.containsKey(transaction.getCategory())) {
                             transaction.setDisplayCategoryName(categoryMap.get(transaction.getCategory()));
                         }
 
-                        allTransactions.add(transaction);
+                        allTransactions.add(transaction);//nhotou transactions kol fl temporary list
 
                         if ("Income".equals(transaction.getType())) {
                             totalIncome += transaction.getAmount();
@@ -122,7 +116,7 @@ public class HomeFragment extends Fragment {
                     }
                 }
 
-                // Sort by date descending
+                // on tire par date (nhbou ken last 3 recent ones)
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 Collections.sort(allTransactions, (t1, t2) -> {
                     try {
@@ -140,16 +134,16 @@ public class HomeFragment extends Fragment {
                 }
 
                 double totalBalance = totalIncome - totalExpense;
-                income.setText("Income: $" + totalIncome);
-                expense.setText("Expenses: $" + totalExpense);
-                balance.setText("$" + totalBalance);
+                income.setText(totalIncome+" tnd");
+                expense.setText(totalExpense+" tnd");
+                balance.setText(totalBalance+" tnd");
 
                 transactionAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Handle error
+                // ken fama erreur
             }
         });
     }

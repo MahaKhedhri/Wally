@@ -28,7 +28,6 @@ public class SettingsFragment extends Fragment {
     private EditText totalBudgetInput;
     private Button saveTotalBudgetBtn;
     private LinearLayout categoryBudgetsContainer;
-    private RadioButton rbExpense, rbIncome;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,26 +37,11 @@ public class SettingsFragment extends Fragment {
         saveTotalBudgetBtn = view.findViewById(R.id.saveTotalBudgetBtn);
         categoryBudgetsContainer = view.findViewById(R.id.categoryBudgetsContainer);
 
-        RadioGroup radioGroup = view.findViewById(R.id.radioGroupFilter);
-        rbIncome = view.findViewById(R.id.rbIncome);
-        rbExpense = view.findViewById(R.id.rbExpense);
-
-        // Set Expense as default selected
-        rbExpense.setChecked(true);
-
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getUid());
 
         loadExistingTotalBudget();
-        loadCategoryBudgets("Expense"); // Load Expense by default
-
-        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.rbIncome) {
-                loadCategoryBudgets("Income");
-            } else if (checkedId == R.id.rbExpense) {
-                loadCategoryBudgets("Expense");
-            }
-        });
+        loadCategoryBudgets(); // Now always loads expense categories
 
         saveTotalBudgetBtn.setOnClickListener(v -> {
             String totalBudgetStr = totalBudgetInput.getText().toString().trim();
@@ -74,7 +58,7 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        checkMonthlyBudgetUsage(); // Only budget check here now
+        checkMonthlyBudgetUsage();
     }
 
     private void loadExistingTotalBudget() {
@@ -87,12 +71,11 @@ public class SettingsFragment extends Fragment {
                 }
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
-    private void loadCategoryBudgets(String typeFilter) {
+    private void loadCategoryBudgets() {
         database.child("categories").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -104,7 +87,7 @@ public class SettingsFragment extends Fragment {
                     String categoryName = categorySnapshot.child("name").getValue(String.class);
                     String categoryType = categorySnapshot.child("type").getValue(String.class);
 
-                    if (categoryName != null && categoryType != null && categoryType.equalsIgnoreCase(typeFilter)) {
+                    if ("Expense".equalsIgnoreCase(categoryType)) {
                         addCategoryBudgetRow(categoryId, categoryName);
                         foundAny = true;
                     }
@@ -112,15 +95,14 @@ public class SettingsFragment extends Fragment {
 
                 if (!foundAny) {
                     TextView emptyMessage = new TextView(getContext());
-                    emptyMessage.setText("No categories found for " + typeFilter);
+                    emptyMessage.setText("No expense categories found.");
                     emptyMessage.setTextColor(getResources().getColor(android.R.color.darker_gray));
                     emptyMessage.setTextSize(16);
                     categoryBudgetsContainer.addView(emptyMessage);
                 }
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
@@ -139,9 +121,9 @@ public class SettingsFragment extends Fragment {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            Double value = snapshot.getValue(Double.class);
-                            budgetInput.setText(String.valueOf(value));
+                        Double budgetValue = snapshot.getValue(Double.class);
+                        if (budgetValue != null && budgetValue > 0) {
+                            budgetInput.setText(String.valueOf(budgetValue));
 
                             database.child("transactions")
                                     .addValueEventListener(new ValueEventListener() {
@@ -150,21 +132,29 @@ public class SettingsFragment extends Fragment {
                                             double used = 0;
                                             for (DataSnapshot t : transSnap.getChildren()) {
                                                 String tCategory = t.child("category").getValue(String.class);
+                                                String tType = t.child("type").getValue(String.class);
                                                 String date = t.child("date").getValue(String.class);
-                                                if (tCategory != null && tCategory.equals(categoryId) && date != null && isInCurrentMonth(date)) {
-                                                    Double amount = t.child("amount").getValue(Double.class);
+                                                Double amount = t.child("amount").getValue(Double.class);
+
+                                                if (tCategory != null && tCategory.equals(categoryId)
+                                                        && date != null && isInCurrentMonth(date)
+                                                        && "Expense".equalsIgnoreCase(tType)) {
                                                     used += (amount != null) ? amount : 0;
                                                 }
                                             }
 
-                                            int progress = (int) ((used / value) * 100);
-                                            categoryUsage.setText("Used: " + used + " tnd / " + value + " tnd");
+                                            int progress = (int) ((used / budgetValue) * 100);
+                                            categoryUsage.setText("Used: " + used + " tnd / " + budgetValue + " tnd");
                                             categoryProgress.setProgress(Math.min(progress, 100));
                                         }
 
                                         @Override public void onCancelled(@NonNull DatabaseError error) {}
                                     });
+                        } else {
+                            categoryUsage.setText("No budget set");
+                            categoryProgress.setProgress(0);
                         }
+
                     }
 
                     @Override public void onCancelled(@NonNull DatabaseError error) {}
@@ -175,18 +165,23 @@ public class SettingsFragment extends Fragment {
             if (!input.isEmpty()) {
                 double value = Double.parseDouble(input);
 
+                // First, calculate the sum of all category budgets
                 calculateTotalCategoryBudgets(total -> {
+                    // Get the total budget set by the user
                     double totalBudget = Double.parseDouble(totalBudgetInput.getText().toString().trim());
 
-                    if (total > totalBudget) {
+                    // Check if the sum of all category budgets + the new category budget exceeds the total budget
+                    if ((total + value) > totalBudget) {
                         Toast.makeText(getContext(), "Total category budgets exceed total budget!", Toast.LENGTH_SHORT).show();
                     } else {
+                        // Save the new category budget
                         database.child("budgets").child("categoryBudgets").child(categoryId).setValue(value);
                         Toast.makeText(getContext(), categoryName + " budget saved!", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         });
+
 
         categoryBudgetsContainer.addView(row);
     }
@@ -216,7 +211,6 @@ public class SettingsFragment extends Fragment {
                     if (totalBudget != null && totalBudget > 0) {
                         calculateMonthlySpending(totalSpent -> {
                             double usagePercent = (totalSpent / totalBudget) * 100;
-                            Log.d("SettingsFragment", "Usage percent: " + usagePercent); // Log usage percentage
                             if (usagePercent >= 85) {
                                 showBudgetWarningNotification(totalSpent, totalBudget);
                             }
@@ -252,12 +246,10 @@ public class SettingsFragment extends Fragment {
 
     private void showBudgetWarningNotification(double spent, double budget) {
         String channelId = "budget_channel";
-        String channelName = "Budget Alerts";
 
-        createNotificationChannel(); // Ensure the channel is created
+        createNotificationChannel();
 
         NotificationManager manager = (NotificationManager) requireContext().getSystemService(Context.NOTIFICATION_SERVICE);
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(requireContext(), channelId)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle("Budget Alert")
@@ -270,12 +262,12 @@ public class SettingsFragment extends Fragment {
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Budget Alerts";
-            String description = "Alerts for budget usage";
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel("budget_channel", name, importance);
-            channel.setDescription(description);
-
+            NotificationChannel channel = new NotificationChannel(
+                    "budget_channel",
+                    "Budget Alerts",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Alerts for budget usage");
             NotificationManager notificationManager = requireContext().getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }

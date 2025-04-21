@@ -3,6 +3,7 @@ package com.example.wallyapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,20 +24,19 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login); // Make sure your layout file name is correct
-
-        // Initialize Firebase Auth
-        mAuth = FirebaseAuth.getInstance();
-
-        // Find views
+        setContentView(R.layout.activity_login);
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         loginButton = findViewById(R.id.loginButton);
         forgotPassword = findViewById(R.id.forgotPassword);
         createAccount = findViewById(R.id.createAccount);
 
-        // Login Button Click Listener
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
+        // Login Button
         loginButton.setOnClickListener(v -> {
+            Toast.makeText(this, "Button Clicked", Toast.LENGTH_SHORT).show();
             String email = emailInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
 
@@ -55,22 +55,41 @@ public class LoginActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class); // Replace with your home activity
-                            startActivity(intent);
+                            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                             finish();
                         } else {
-                            Toast.makeText(LoginActivity.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Exception e = task.getException();
+                            Toast.makeText(LoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.e("LoginDebug", "Firebase login error", e);
                         }
                     });
+
         });
 
         // Forgot Password
         forgotPassword.setOnClickListener(v -> {
+            Toast.makeText(this, "Button Clicked", Toast.LENGTH_SHORT).show();
+            String email = emailInput.getText().toString().trim();
+            if (email.isEmpty()) {
+                emailInput.setError("Enter your email to reset password");
+                return;
+            }
+            mAuth.sendPasswordResetEmail(email)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this, "Reset link sent to: " + email, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Exception e = task.getException();
+                            Toast.makeText(LoginActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.e("ForgotPassword", "Failed to send reset email", e);
+                        }
+                    });
         });
 
-        // Go to Sign Up
+
+        // Sign Up Button
         createAccount.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, SignUpActivity.class); // Replace with your sign up activity
+            Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
         });
     }

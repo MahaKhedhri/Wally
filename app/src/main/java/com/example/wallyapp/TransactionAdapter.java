@@ -15,7 +15,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     private List<Transaction> transactionList;
 
-    public TransactionAdapter(List<Transaction> transactionList) {
+    public TransactionAdapter(List<Transaction> transactionList) {//on initialise l'adaptetur avec liste
         this.transactionList = transactionList;
     }
 
@@ -23,7 +23,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_transaction, parent, false); // Use the XML file you provided
+                .inflate(R.layout.item_transaction, parent, false);
         return new TransactionViewHolder(itemView);
     }
 

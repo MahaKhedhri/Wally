@@ -1,6 +1,7 @@
 package com.example.wallyapp;
 
 public class Transaction {
+    private String note;
     private String id;
     private String title;
     private String date;
@@ -68,5 +69,9 @@ public class Transaction {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getNote() {
+        return note != null ? note : "";
     }
 }

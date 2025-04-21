@@ -2,33 +2,33 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/white">
 
-    <!-- Display User Info -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
         <TextView
             android:id="@+id/Dash"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Dashboard"
-            android:textColor="@color/black"
-            android:textSize="23sp"
             android:layout_marginRight="140dp"
-            />
+            android:text="Hi,Welcome back"
+            android:textColor="@color/black"
+            android:textSize="23sp" />
 
-        <TextView
-            android:id="@+id/tvCurrentDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Current Date"
-            android:gravity="right"
-            android:textSize="16sp"
-            android:layout_margin="16dp"/>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:src="@drawable/logout" />
+
     </LinearLayout>
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -36,8 +36,10 @@
         android:layout_marginTop="16dp"
         android:layout_gravity="center"
         android:layout_margin="8dp"
-        android:background="@drawable/border">
-        <LinearLayout
+        app:cardBackgroundColor="@color/blue"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="8dp">
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -49,33 +51,41 @@
                 android:layout_height="wrap_content"
                 android:text="Total balance"
                 android:textSize="13sp"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:layout_marginBottom="15dp"/>
             <TextView
                 android:id="@+id/balance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="$0000"
+                android:text="0 tnd"
                 android:textSize="25sp"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:layout_marginBottom="15dp"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/upw" />
                 <TextView
                     android:id="@+id/income"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Income :"
+                    android:text="0 tnd"
                     android:textSize="15sp"
                     android:textColor="#008000"
                     android:layout_marginRight="100dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/downw" />
                 <TextView
                     android:id="@+id/expense"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Expenses :"
+                    android:text="0 tnd"
                     android:textSize="15sp"
                     android:textColor="#CD1C18"/>
             </LinearLayout>
@@ -96,6 +106,4 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         />
-
-
 </LinearLayout>
