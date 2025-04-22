@@ -41,9 +41,9 @@ public class SettingsFragment extends Fragment {
         database = FirebaseDatabase.getInstance().getReference("users").child(mAuth.getUid());
 
         loadExistingTotalBudget();
-        loadCategoryBudgets(); // Now always loads expense categories
+        loadCategoryBudgets();
 
-        saveTotalBudgetBtn.setOnClickListener(v -> {
+        saveTotalBudgetBtn.setOnClickListener(v -> { //bch nupdaty l budget ky nckliki
             String totalBudgetStr = totalBudgetInput.getText().toString().trim();
             if (!totalBudgetStr.isEmpty()) {
                 double totalBudget = Double.parseDouble(totalBudgetStr);
@@ -58,10 +58,10 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        checkMonthlyBudgetUsage();
+        checkMonthlyBudgetUsage();//bch twaryny qadchstaamlt ml budget
     }
 
-    private void loadExistingTotalBudget() {
+    private void loadExistingTotalBudget() {// twaryny l budget y deja mawjouda fl database
         database.child("budgets").child("totalBudget").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -165,12 +165,9 @@ public class SettingsFragment extends Fragment {
             if (!input.isEmpty()) {
                 double value = Double.parseDouble(input);
 
-                // First, calculate the sum of all category budgets
                 calculateTotalCategoryBudgets(total -> {
-                    // Get the total budget set by the user
                     double totalBudget = Double.parseDouble(totalBudgetInput.getText().toString().trim());
 
-                    // Check if the sum of all category budgets + the new category budget exceeds the total budget
                     if ((total + value) > totalBudget) {
                         Toast.makeText(getContext(), "Total category budgets exceed total budget!", Toast.LENGTH_SHORT).show();
                     } else {

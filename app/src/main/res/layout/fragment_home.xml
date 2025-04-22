@@ -24,6 +24,7 @@
             android:textSize="23sp" />
 
         <ImageView
+            android:id="@+id/logoutImage"
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_gravity="right"

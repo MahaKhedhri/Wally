@@ -1,9 +1,13 @@
 package com.example.wallyapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,8 +40,7 @@ public class HomeFragment extends Fragment {
     private ArrayList<Transaction> transactionList;
     private TransactionAdapter transactionAdapter;
     private Map<String, String> categoryMap = new HashMap<>(); // Store category ID and name (l hashmap kyma dictionnaire fyh id w valeur)
-
-    @Nullable
+    private ImageView logoutImage;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
@@ -46,6 +49,7 @@ public class HomeFragment extends Fragment {
         income = view.findViewById(R.id.income);
         expense = view.findViewById(R.id.expense);
         recentTransactionsRecycler = view.findViewById(R.id.recentTransactionsRecycler);
+        logoutImage = view.findViewById(R.id.logoutImage);
 
         // Firebase of the user that signed in (bl id mteeou)
         auth = FirebaseAuth.getInstance();
@@ -61,8 +65,35 @@ public class HomeFragment extends Fragment {
 
         // Load categories first (naqraw l categories ml firebase id,valeur bch baad nwary l transaction ,kahter f transaction andy cle etranger ll categoiries)
         loadCategories();
+        logoutImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show confirmation dialog
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Logout")
+                        .setMessage("Are you sure you want to logout?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Perform logout (sign out)
+                                FirebaseAuth.getInstance().signOut();
+
+                                // After logout, redirect to LoginActivity
+                                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+
+                                // Optionally, you could also call getActivity().finish() to close the current activity
+                                // getActivity().finish();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null) // Just dismiss the dialog
+                        .show();
+            }
+        });
 
         return view;
+
+
     }
 
     private void loadCategories() {

@@ -21,13 +21,10 @@ public class TransactionFragment extends Fragment {
     private RecyclerView recyclerView;
     private TransactionAdapter adapter;
     private List<Transaction> transactionList;
-
     private EditText searchInput;
     private Spinner filterSpinner;
-
     private DatabaseReference transactionsRef;
     private String currentUserId;
-
     private String currentFilter = "All";
     private String currentSearch = "";
 
