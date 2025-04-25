@@ -1,5 +1,6 @@
 package com.example.wallyapp;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -44,6 +45,7 @@ public class TransactionFragment extends Fragment {
         transactionList = new ArrayList<>();
         adapter = new TransactionAdapter(transactionList);
         recyclerView.setAdapter(adapter);
+        setupLongClick();
 
         // Firebase of the user that signed in (save id ,transactions path,set filter,load transaction)
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -90,6 +92,17 @@ public class TransactionFragment extends Fragment {
         });
     }
 
+    private void setupLongClick() {
+        adapter.setOnTransactionLongClickListener(transaction -> {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Delete Transaction")
+                    .setMessage("Are you sure you want to delete this transaction?")
+                    .setPositiveButton("Yes", (dialog, which) -> deleteTransaction(transaction))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+    }
+
     private void loadTransactions() {
         transactionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -113,6 +126,28 @@ public class TransactionFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(getContext(), "Failed to load transactions", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void deleteTransaction(Transaction transaction) {
+        transactionsRef.orderByChild("id").equalTo(transaction.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    child.getRef().removeValue().addOnSuccessListener(aVoid -> {
+                        Toast.makeText(getContext(), "Transaction deleted", Toast.LENGTH_SHORT).show();
+                        loadTransactions();
+                    }).addOnFailureListener(e ->
+                            Toast.makeText(getContext(), "Failed to delete", Toast.LENGTH_SHORT).show()
+                    );
+                    break;
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Error deleting transaction", Toast.LENGTH_SHORT).show();
             }
         });
     }

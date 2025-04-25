@@ -68,22 +68,18 @@ public class HomeFragment extends Fragment {
         logoutImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Show confirmation dialog
                 new AlertDialog.Builder(requireContext())
                         .setTitle("Logout")
                         .setMessage("Are you sure you want to logout?")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                // Perform logout (sign out)
+
                                 FirebaseAuth.getInstance().signOut();
 
-                                // After logout, redirect to LoginActivity
                                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(intent);
 
-                                // Optionally, you could also call getActivity().finish() to close the current activity
-                                // getActivity().finish();
                             }
                         })
                         .setNegativeButton("Cancel", null) // Just dismiss the dialog
