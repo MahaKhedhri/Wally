@@ -19,11 +19,15 @@
 - Firebase Realtime Database
 - XML for UI layouts
 
+## 📸 Screenshots
+
+
+
 ## 🚀 Getting Started
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/wally-budget-manager.git
+   git clone https://github.com/MahaKhedhri/Wally.git
 
 ## 👩‍💻 Auteure
 
